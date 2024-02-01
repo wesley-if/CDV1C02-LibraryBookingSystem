@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<jsp:include page="_head.jsp" />
 
 <body>
 	<div class="container">
@@ -73,3 +74,5 @@
 		});
 	</script>
 </body>
+
+<jsp:include page="_foot.jsp" />
