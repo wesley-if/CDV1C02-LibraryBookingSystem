@@ -2,7 +2,7 @@
 	pageEncoding="ISO-8859-1" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="ISO-8859-1">
 <title>Insert title here</title>
@@ -34,12 +34,11 @@
 						<th>Actions</th>
 					</tr>
 				</thead>
-				<!-- Pass in the list of users receive via the Servlet response to a loop -
-->
-<tbody>
-<c:forEach var="user" items="${listUsers}">
-<!-- For each user in the database, display their
-information accordingly -->
+
+				<tbody>
+				<c:forEach var="user" items="${listUsers}">
+				<!-- For each user in the database, display their
+				information accordingly -->
 				<tr>
 					<td><c:out value="${user.name}" /></td>
 					<td><c:out value="${user.password}" /></td>

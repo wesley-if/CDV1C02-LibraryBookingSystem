@@ -8,13 +8,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-//import javax.servlet.RequestDispatcher;
 
 /**
  * Servlet implementation class UserServlet
@@ -23,63 +21,44 @@ import java.util.List;
 public class UserServlet extends BaseServlet {
 	private static final long serialVersionUID = 1L;
 
-	private static final String INSERT_USERS_SQL = "INSERT INTO userdetails"
-			+ " (name, password, email, language) VALUES " + " (?, ?, ?);";
 	private static final String SELECT_USER_BY_ID = "select name,password,email,language from userdetails where name =?";
 	private static final String SELECT_ALL_USERS = "select * from userdetails ";
 	private static final String DELETE_USERS_SQL = "delete from userdetails where name = ?;";
 	private static final String UPDATE_USERS_SQL = "update userdetails set name = ?,password= ?, email =?,language =? where name = ?;";
-
-	// Step 3: Implement the getConnection method which facilitates connection to
-	// the database via JDBC
-//	protected Connection getConnection() {
-//		Connection connection = null;
-//		try {
-//			Class.forName("com.mysql.jdbc.Driver");
-//			connection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		} catch (ClassNotFoundException e) {
-//			e.printStackTrace();
-//		}
-//		return connection;
-//	}
 
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
 	public UserServlet() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
 	 *      response)
 	 */
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		// response.getWriter().append("Served at: ").append(request.getContextPath());
-
 		String action = request.getServletPath();
 		try {
 			switch (action) {
-			case "/UserServlet/delete":
-				deleteUser(request, response);
-				break;
-			case "/UserServlet/edit":
-				showEditForm(request, response);
-				break;
-			case "/UserServlet/update":
-				updateUser(request, response);
-				break;
-			case "/UserServlet/dashboard":
-				listUsers(request, response);
-				break;
+				case "/UserServlet/delete":
+					deleteUser(request, response);
+					break;
+				case "/UserServlet/edit":
+					showEditForm(request, response);
+					break;
+				case "/UserServlet/update":
+					updateUser(request, response);
+					break;
+				case "/UserServlet/dashboard":
+				default:
+					listUsers(request, response);
+					break;
 			}
-		} catch (SQLException ex) {
-			throw new ServletException(ex);
+		} catch (Exception ex) {
+			getLogger().error(ex.getMessage());
 		}
 	}
 
@@ -87,10 +66,15 @@ public class UserServlet extends BaseServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
 	 *      response)
 	 */
+	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		doGet(request, response);
+		try {
+			doGet(request, response);
+		}
+		catch (Exception ex) {
+			getLogger().error(ex.getMessage());
+		}
 	}
 
 	// Step 5: listUsers function to connect to the database and retrieve all users
@@ -99,12 +83,8 @@ public class UserServlet extends BaseServlet {
 			throws SQLException, IOException, ServletException {
 		List<User> users = new ArrayList<>();
 
-		try {
-			Connection connection = getDbo();
-
-			// Step 5.1: Create a statement using connection object
-			PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_USERS);
-
+		try (Connection connection = getDbo();
+				PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_USERS);) {
 			// Step 5.2: Execute the query or update query
 			ResultSet rs = preparedStatement.executeQuery();
 
@@ -117,7 +97,7 @@ public class UserServlet extends BaseServlet {
 				users.add(new User(name, password, email, language));
 			}
 		} catch (SQLException e) {
-			System.out.println(e.getMessage());
+			throw new SQLException(e);
 		}
 
 		// Step 5.4: Set the users list into the listUsers attribute to be pass to the
@@ -131,16 +111,16 @@ public class UserServlet extends BaseServlet {
 		// get parameter passed in the URL
 		String name = request.getParameter("name");
 		User existingUser = new User("", "", "", "");
-		
+
 		// Step 1: Establishing a Connection
 		try (Connection connection = getDbo();
 				// Step 2:Create a statement using connection object
 				PreparedStatement preparedStatement = connection.prepareStatement(SELECT_USER_BY_ID);) {
 			preparedStatement.setString(1, name);
-			
+
 			// Step 3: Execute the query or update query
 			ResultSet rs = preparedStatement.executeQuery();
-			
+
 			// Step 4: Process the ResultSet object
 			while (rs.next()) {
 				name = rs.getString("name");
@@ -150,9 +130,9 @@ public class UserServlet extends BaseServlet {
 				existingUser = new User(name, password, email, language);
 			}
 		} catch (SQLException e) {
-			System.out.println(e.getMessage());
+			throw new SQLException(e);
 		}
-		
+
 		// Step 5: Set existingUser to request and serve up the userEdit form
 		request.setAttribute("user", existingUser);
 		request.getRequestDispatcher("/userEdit.jsp").forward(request, response);
@@ -174,13 +154,16 @@ public class UserServlet extends BaseServlet {
 			statement.setString(3, email);
 			statement.setString(4, language);
 			statement.setString(5, oriName);
-			
-			int i = statement.executeUpdate();
+
+			statement.executeUpdate();
+		}
+		catch (SQLException e) {
+			throw new SQLException(e);
 		}
 
 		// Step 3: redirect back to UserServlet (note: remember to change the url to
 		// your project name)
-		response.sendRedirect("http://localhost:8080/HelloWorld/UserServlet/dashboard");
+		response.sendRedirect(URL_BASE + "UserServlet/dashboard");
 	}
 
 	private void deleteUser(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
@@ -191,12 +174,15 @@ public class UserServlet extends BaseServlet {
 		try (Connection connection = getDbo();
 				PreparedStatement statement = connection.prepareStatement(DELETE_USERS_SQL);) {
 			statement.setString(1, name);
-			int i = statement.executeUpdate();
+			statement.executeUpdate();
+		}
+		catch (SQLException e) {
+			throw new SQLException(e);
 		}
 
 		// Step 3: redirect back to UserServlet dashboard (note: remember to change the
 		// url to your project name)
-		response.sendRedirect("http://localhost:8080/HelloWorld/UserServlet/dashboard");
+		response.sendRedirect(URL_BASE + "UserServlet/dashboard");
 	}
 
 }

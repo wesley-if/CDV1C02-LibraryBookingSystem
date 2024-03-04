@@ -9,12 +9,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-//import java.sql.PreparedStatement;
-//import java.sql.ResultSet;
-import java.sql.SQLException;
-//import java.util.ArrayList;
-//import java.util.List;
-//import javax.servlet.RequestDispatcher;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Servlet implementation class BaseServlet
@@ -23,52 +19,66 @@ import java.sql.SQLException;
 public class BaseServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	protected String baseURL = "http://localhost:8080/LibraryBookingSystem/";
-	private String jdbcURL = "jdbc:mysql://localhost:3306/library_booking";
-	private String jdbcUsername = "wesley";
-	private String jdbcPassword = "wes2011";
+	static final String URL_BASE = "http://localhost:8080/LibraryBookingSystem/";
+
+	private static final String DB_URL = "jdbc:mysql://localhost:3306/library_booking";
+	private static final String DB_USERNAME = "wesley";
+	private static final String DB_PASSWORD = "wes2011";
+
+
+	private final Logger logger = LogManager.getLogger(this.getClass());
 
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
 	public BaseServlet() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
 	 *      response)
 	 */
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		response.getWriter().append("Served at: ").append(request.getContextPath());
+		try {
+			response.getWriter().append("Served at: ").append(request.getContextPath());
+		}
+		catch (Exception ex) {
+			getLogger().error(ex.getMessage());
+		}
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
 	 *      response)
 	 */
+	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		doGet(request, response);
+		try {
+			doGet(request, response);
+		}
+		catch (Exception ex) {
+			getLogger().error(ex.getMessage());
+		}
 	}
 
 	protected Connection getDbo() {
 		Connection connection = null;
 
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			connection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			connection = DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD);
+		} catch (Exception ex) {
+			getLogger().error(ex.getMessage());
 		}
 
 		return connection;
+	}
+
+	protected Logger getLogger() {
+		return logger;
 	}
 
 }
