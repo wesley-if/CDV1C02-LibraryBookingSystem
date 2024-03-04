@@ -17,6 +17,12 @@ pipeline{
 				bat "mvn test"
 			}
 		}
+		stage("test2"){
+			steps{
+				echo "Start SonarQube Test"
+				bat "mvn sonar:sonar"
+			}
+		}
 		stage("build"){
 			steps{
 				echo "Start build"
