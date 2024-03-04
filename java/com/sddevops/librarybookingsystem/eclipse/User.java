@@ -1,4 +1,4 @@
-
+package com.sddevops.librarybookingsystem.eclipse;
 
 public class User {
 	protected String name;

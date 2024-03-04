@@ -1,3 +1,4 @@
+package com.sddevops.librarybookingsystem.eclipse;
 
 public class Book {
 	protected Integer id;

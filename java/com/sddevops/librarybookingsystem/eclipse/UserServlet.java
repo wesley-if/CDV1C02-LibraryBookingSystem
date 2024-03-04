@@ -1,3 +1,5 @@
+package com.sddevops.librarybookingsystem.eclipse;
+
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -7,24 +9,19 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-//import java.sql.PreparedStatement;
-//import java.sql.ResultSet;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-//import java.util.ArrayList;
-//import java.util.List;
+import java.util.ArrayList;
+import java.util.List;
 //import javax.servlet.RequestDispatcher;
 
 /**
  * Servlet implementation class UserServlet
  */
 @WebServlet("/UserServlet")
-public class UserServlet extends HttpServlet {
+public class UserServlet extends BaseServlet {
 	private static final long serialVersionUID = 1L;
-
-	protected String baseURL = "http://localhost:8080/LibraryBookingSystem/";
-	private String jdbcURL = "jdbc:mysql://localhost:3306/library_booking";
-	private String jdbcUsername = "wesley";
-	private String jdbcPassword = "wes2011";
 
 	private static final String INSERT_USERS_SQL = "INSERT INTO userdetails"
 			+ " (name, password, email, language) VALUES " + " (?, ?, ?);";
@@ -32,21 +29,6 @@ public class UserServlet extends HttpServlet {
 	private static final String SELECT_ALL_USERS = "select * from userdetails ";
 	private static final String DELETE_USERS_SQL = "delete from userdetails where name = ?;";
 	private static final String UPDATE_USERS_SQL = "update userdetails set name = ?,password= ?, email =?,language =? where name = ?;";
-	
-	protected Connection getDbo() {
-		Connection connection = null;
-
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			connection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-
-		return connection;
-	}
 
 	// Step 3: Implement the getConnection method which facilitates connection to
 	// the database via JDBC
@@ -90,7 +72,7 @@ public class UserServlet extends HttpServlet {
 				showEditForm(request, response);
 				break;
 			case "/UserServlet/update":
-				updateUser(request, response);--
+				updateUser(request, response);
 				break;
 			case "/UserServlet/dashboard":
 				listUsers(request, response);
